@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attractive Responsive Calculator</title>
+
+  <style>
+    :root{
+      --bg1:#070a12;
+      --bg2:#0b1230;
+
+      --card: rgba(255,255,255,0.10);
+      --card2: rgba(255,255,255,0.06);
+      --stroke: rgba(255,255,255,0.16);
+
+      --text:#eef3ff;
+      --muted: rgba(238,243,255,0.65);
+
+      --shadow: 0 30px 80px rgba(0,0,0,0.45);
+
+      --btn: rgba(255,255,255,0.10);
+      --btn2: rgba(255,255,255,0.14);
+      --op: rgba(255,255,255,0.14);
+
+      --eq1:#4f8cff;
+      --eq2:#6a5cff;
+
+      --danger1:#ff4d6d;
+      --danger2:#ff7a59;
+
+      --radius: 26px;
+      --gap: 12px;
+    }
+
+    body.light{
+      --bg1:#f6f8ff;
+      --bg2:#eef2ff;
+
+      --card: rgba(0,0,0,0.06);
+      --card2: rgba(0,0,0,0.04);
+      --stroke: rgba(0,0,0,0.10);
+
+      --text:#0f1630;
+      --muted: rgba(15,22,48,0.58);
+
+      --shadow: 0 22px 65px rgba(16,22,42,0.18);
+
+      --btn: rgba(0,0,0,0.06);
+      --btn2: rgba(0,0,0,0.10);
+      --op: rgba(0,0,0,0.08);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 500px at 10% 20%, rgba(79,140,255,0.30), transparent 60%),
+        radial-gradient(900px 550px at 90% 25%, rgba(255,77,109,0.22), transparent 60%),
+        radial-gradient(900px 550px at 50% 95%, rgba(106,92,255,0.20), transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:grid;
+      place-items:center;
+      padding: 18px;
+      transition: 0.3s;
+    }
+
+    .wrap{
+      width: 100%;
+      display:grid;
+      place-items:center;
+    }
+
+    .calc{
+      width: min(430px, 100%);
+      border-radius: var(--radius);
+      overflow:hidden;
+      position: relative;
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      box-shadow: var(--shadow);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .calc::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: calc(var(--radius) + 2px);
+      background: linear-gradient(135deg,
+        rgba(79,140,255,0.60),
+        rgba(255,77,109,0.45),
+        rgba(106,92,255,0.55)
+      );
+      filter: blur(18px);
+      opacity: .55;
+      z-index:-1;
+    }
+
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding: 16px 16px 10px;
+    }
+
+    .brand{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .brand h1{
+      margin:0 0 0 8px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.20);
+    }
+
+    .themeBtn{
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      transition: transform .12s ease, background .2s ease;
+    }
+    .themeBtn:hover{ background: rgba(255,255,255,0.12); }
+    .themeBtn:active{ transform: translateY(1px) scale(0.99); }
+
+    .display{
+      padding: 10px 16px 12px;
+    }
+    .history{
+      min-height: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align:right;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .screen{
+      font-size: clamp(36px, 6.5vw, 48px);
+      font-weight: 850;
+      letter-spacing: 0.5px;
+      text-align:right;
+      padding-top: 6px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+
+      background: linear-gradient(90deg, #ffffff, rgba(255,255,255,0.70));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+    }
+
+    .keys{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--gap);
+      padding: 14px 16px 16px;
+    }
+
+    .key{
+      position:relative;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      padding: 16px 0;
+      font-size: 18px;
+      color: var(--text);
+      background: linear-gradient(180deg, var(--btn2), var(--btn));
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, filter .2s ease, background .2s ease;
+      overflow:hidden;
+    }
+
+    .key:hover{ filter: brightness(1.10); }
+    .key:active{ transform: translateY(1px) scale(0.99); }
+
+    .key.op{
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), var(--op));
+      font-weight: 750;
+    }
+
+    .key.eq{
+      border: 0;
+      background: linear-gradient(135deg, var(--eq1), var(--eq2));
+      font-weight: 900;
+      box-shadow: 0 14px 30px rgba(79,140,255,0.25);
+    }
+    .key.eq:hover{ filter: brightness(1.08); }
+
+    .key[data-action="clear"]{
+      border: 0;
+      background: linear-gradient(135deg, var(--danger1), var(--danger2));
+      font-weight: 900;
+      box-shadow: 0 14px 30px rgba(255,77,109,0.22);
+    }
+
+    .key.wide{ grid-column: span 2; }
+
+    .hint{
+      padding: 0 16px 16px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+    }
+
+    @media (min-width:768px){
+      .key{ padding: 18px 0; font-size: 19px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="calc">
+      <header class="top">
+        <div class="brand">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <h1>Calculator</h1>
+        </div>
+        <button class="themeBtn" id="themeBtn">🌙</button>
+      </header>
+
+      <div class="display">
+        <div class="history" id="history"></div>
+        <div class="screen" id="screen">0</div>
+      </div>
+
+      <div class="keys" id="keys">
+        <button class="key op" data-action="clear">AC</button>
+        <button class="key op" data-action="back">⌫</button>
+        <button class="key op" data-value="%">%</button>
+        <button class="key op" data-value="/">÷</button>
+
+        <button class="key" data-value="7">7</button>
+        <button class="key" data-value="8">8</button>
+        <button class="key" data-value="9">9</button>
+        <button class="key op" data-value="*">×</button>
+
+        <button class="key" data-value="4">4</button>
+        <button class="key" data-value="5">5</button>
+        <button class="key" data-value="6">6</button>
+        <button class="key op" data-value="-">−</button>
+
+        <button class="key" data-value="1">1</button>
+        <button class="key" data-value="2">2</button>
+        <button class="key" data-value="3">3</button>
+        <button class="key op" data-value="+">+</button>
+
+        <button class="key wide" data-value="0">0</button>
+        <button class="key" data-value=".">.</button>
+        <button class="key eq" data-action="equals">=</button>
+      </div>
+
+      <footer class="hint">
+        ✅ Mobile + Desktop Responsive | Keyboard Support (Enter, Backspace)
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    const screen = document.getElementById("screen");
+    const historyEl = document.getElementById("history");
+    const keys = document.getElementById("keys");
+    const themeBtn = document.getElementById("themeBtn");
+
+    let current = "0";
+    let previous = "";
+    let operator = "";
+    let justEvaluated = false;
+
+    function updateDisplay() {
+      screen.textContent = current;
+      historyEl.textContent = previous ? `${previous} ${operator}` : "";
+    }
+
+    function setCurrent(value) {
+      if (value.length > 18) return;
+      current = value;
+      updateDisplay();
+    }
+
+    function inputDigit(d) {
+      if (justEvaluated) {
+        previous = "";
+        operator = "";
+        justEvaluated = false;
+        setCurrent(d === "." ? "0." : d);
+        return;
+      }
+
+      if (d === ".") {
+        if (current.includes(".")) return;
+        setCurrent(current + ".");
+        return;
+      }
+
+      if (current === "0") setCurrent(d);
+      else setCurrent(current + d);
+    }
+
+    function clearAll() {
+      current = "0";
+      previous = "";
+      operator = "";
+      justEvaluated = false;
+      updateDisplay();
+    }
+
+    function backspace() {
+      if (justEvaluated) justEvaluated = false;
+      if (current.length <= 1) setCurrent("0");
+      else setCurrent(current.slice(0, -1));
+    }
+
+    function compute(a, b, op) {
+      if (op === "+") return a + b;
+      if (op === "-") return a - b;
+      if (op === "*") return a * b;
+      if (op === "/") return b === 0 ? NaN : a / b;
+      if (op === "%") return a % b;
+      return b;
+    }
+
+    function chooseOperator(op) {
+      if (operator && previous !== "" && !justEvaluated) {
+        equals();
+      }
+
+      operator = op;
+
+      if (previous === "") {
+        previous = current;
+        current = "0";
+      }
+
+      justEvaluated = false;
+      updateDisplay();
+    }
+
+    function formatResult(n) {
+      if (!Number.isFinite(n)) return "Error";
+      const str = n.toString();
+      if (str.length <= 18) return str;
+      return n.toPrecision(12).toString();
+    }
+
+    function equals() {
+      if (!operator || previous === "") return;
+
+      const a = Number(previous);
+      const b = Number(current);
+      const result = compute(a, b, operator);
+
+      historyEl.textContent = `${previous} ${operator} ${current} =`;
+      setCurrent(formatResult(result));
+
+      previous = "";
+      operator = "";
+      justEvaluated = true;
+    }
+
+    // Ripple effect
+    function ripple(btn, x, y) {
+      const circle = document.createElement("span");
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+
+      circle.style.width = circle.style.height = size + "px";
+      circle.style.position = "absolute";
+      circle.style.borderRadius = "50%";
+      circle.style.left = (x - rect.left - size / 2) + "px";
+      circle.style.top  = (y - rect.top - size / 2) + "px";
+      circle.style.background = "rgba(255,255,255,0.28)";
+      circle.style.transform = "scale(0)";
+      circle.style.opacity = "0.9";
+      circle.style.pointerEvents = "none";
+      circle.style.transition = "transform 450ms ease, opacity 650ms ease";
+
+      btn.appendChild(circle);
+
+      requestAnimationFrame(() => {
+        circle.style.transform = "scale(1)";
+        circle.style.opacity = "0";
+      });
+
+      setTimeout(() => circle.remove(), 700);
+    }
+
+    keys.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+
+      ripple(btn, e.clientX, e.clientY);
+
+      const value = btn.dataset.value;
+      const action = btn.dataset.action;
+
+      if (action === "clear") return clearAll();
+      if (action === "back") return backspace();
+      if (action === "equals") return equals();
+
+      if (value) {
+        if ("0123456789.".includes(value)) return inputDigit(value);
+        return chooseOperator(value);
+      }
+    });
+
+    // Keyboard support
+    window.addEventListener("keydown", (e) => {
+      const k = e.key;
+
+      if ("0123456789".includes(k)) return inputDigit(k);
+      if (k === ".") return inputDigit(".");
+      if (["+", "-", "*", "/", "%"].includes(k)) return chooseOperator(k);
+
+      if (k === "Enter" || k === "=") {
+        e.preventDefault();
+        return equals();
+      }
+
+      if (k === "Backspace") return backspace();
+      if (k === "Escape") return clearAll();
+    });
+
+    // Theme toggle
+    themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      themeBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
